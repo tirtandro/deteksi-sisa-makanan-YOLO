@@ -254,6 +254,22 @@ def health_check():
     )
 
 
+@app.route("/", methods=["GET"])
+def index():
+    """Root endpoint untuk mengecek status API secara cepat dari browser."""
+    return success_response(
+        data={
+            "endpoints": {
+                "analyze": "POST /api/analyze",
+                "health": "GET /api/health",
+                "classes": "GET /api/classes",
+                "model_info": "GET /api/model-info"
+            }
+        },
+        message="Welcome to S3C-Smart-Canteen Food Waste Analysis API!",
+    )
+
+
 @app.route("/api/classes", methods=["GET"])
 def get_classes():
     """Daftar class makanan yang didukung oleh model."""
