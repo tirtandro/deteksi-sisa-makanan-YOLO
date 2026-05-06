@@ -1,0 +1,27 @@
+# S3C-Smart-Canteen: Dataset Configuration for YOLO Training
+# ──────────────────────────────────────────────────────────
+# File ini digunakan oleh ultralytics YOLO untuk training.
+# Sesuaikan path dataset Anda sebelum memulai training.
+
+# Path ke root dataset (absolute path)
+path: ./datasets/food_waste
+
+# Relative paths ke folder images
+train: train/images
+val: val/images
+test: test/images  # optional
+
+# Class names (9 kategori sisa makanan)
+names:
+  0: nasi
+  1: mie
+  2: daging
+  3: ikan
+  4: sayuran
+  5: buah
+  6: roti
+  7: kuah
+  8: lainnya
+
+# Jumlah classes
+nc: 9

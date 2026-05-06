@@ -1,0 +1,43 @@
+# GCP App Engine Flexible Environment Configuration
+# Alternatif deployment selain Cloud Run
+
+runtime: custom
+env: flex
+
+# Resource allocation
+resources:
+  cpu: 2
+  memory_gb: 4
+  disk_size_gb: 20
+
+# Auto-scaling
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 5
+  cpu_utilization:
+    target_utilization: 0.65
+  target_concurrent_requests: 10
+
+# Environment variables
+env_variables:
+  FLASK_DEBUG: "False"
+  FLASK_PORT: "8080"
+  LOG_LEVEL: "INFO"
+  YOLO_CONF_THRESHOLD: "0.35"
+  PLATE_DIAMETER_CM: "26.0"
+
+# Health check
+liveness_check:
+  path: "/api/health"
+  check_interval_sec: 30
+  timeout_sec: 10
+  failure_threshold: 3
+  success_threshold: 2
+
+readiness_check:
+  path: "/api/health"
+  check_interval_sec: 10
+  timeout_sec: 5
+  failure_threshold: 3
+  success_threshold: 2
+  app_start_timeout_sec: 300

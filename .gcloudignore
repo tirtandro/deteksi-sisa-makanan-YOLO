@@ -1,0 +1,13 @@
+# GCloud ignore file
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.env
+venv/
+training/
+tests/
+*.log
+static/uploads/*
+runs/
+datasets/

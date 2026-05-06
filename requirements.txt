@@ -1,0 +1,16 @@
+# S3C-Smart-Canteen: Food Waste Analysis API
+# Python Dependencies
+
+# Web Framework
+flask>=3.0.0
+flask-cors>=4.0.0
+gunicorn>=22.0.0
+
+# YOLO / Computer Vision
+ultralytics>=8.2.0
+opencv-python-headless>=4.9.0
+numpy>=1.26.0
+Pillow>=10.0.0
+
+# Utilities
+python-dotenv>=1.0.0

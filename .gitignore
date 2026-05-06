@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# YOLO Models (too large for git)
+*.pt
+*.onnx
+*.engine
+
+# YOLO Training runs
+runs/
+
+# Datasets
+datasets/
+
+# Uploads
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
