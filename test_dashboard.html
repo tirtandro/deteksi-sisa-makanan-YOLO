@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3C Smart Canteen - Analisis Sisa Makanan AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #cbd5e1;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 0.75rem;
+            padding: 3rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--accent-color);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        #imagePreviewContainer {
+            margin-top: 1rem;
+            display: none;
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        img.preview-img {
+            width: 100%;
+            display: block;
+            border-radius: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1.5rem;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background: #475569;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255,255,255,0.05);
+            border-color: var(--accent-color);
+            color: var(--text-primary);
+        }
+
+        /* Loading Spinner */
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results Area */
+        #resultPlaceholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 300px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        #resultContent {
+            display: none;
+        }
+
+        .result-image-box {
+            position: relative;
+            margin-bottom: 1.5rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .result-image-box img {
+            width: 100%;
+            display: block;
+        }
+
+        .summary-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-title {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .item-list {
+            list-style: none;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .item-weight {
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        .server-status {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+        }
+
+        .status-dot.online { background: var(--success-color); box-shadow: 0 0 10px var(--success-color); }
+        .status-dot.offline { background: var(--danger-color); box-shadow: 0 0 10px var(--danger-color); }
+        
+        .error-message {
+            color: var(--danger-color);
+            background: rgba(239, 68, 68, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="server-status" id="serverStatus">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Mengecek Server...</span>
+    </div>
+
+    <header>
+        <h1>S3C Food Waste Analysis</h1>
+        <p class="subtitle">Powered by YOLO11 Instance Segmentation</p>
+    </header>
+
+    <div class="container">
+        <!-- Input Panel -->
+        <div class="glass-panel">
+            <h2>📸 Input Gambar</h2>
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div id="uploadPlaceholder">
+                    <div class="upload-icon">📁</div>
+                    <p>Klik atau seret gambar ke sini</p>
+                    <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;">PNG, JPG, WEBP hingga 16MB</p>
+                </div>
+                <div id="imagePreviewContainer">
+                    <img id="imagePreview" class="preview-img" alt="Preview">
+                </div>
+            </div>
+            <input type="file" id="fileInput" accept="image/png, image/jpeg, image/jpg, image/webp">
+            
+            <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+                <button id="reuploadBtn" class="btn btn-secondary" style="display:none; margin-top:0;">
+                    🔄 Upload Ulang
+                </button>
+                <button id="analyzeBtn" class="btn" disabled style="margin-top:0;">
+                    <div class="loader" id="btnLoader"></div>
+                    <span id="btnText">Analisis Gambar</span>
+                </button>
+            </div>
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+
+        <!-- Output Panel -->
+        <div class="glass-panel">
+            <h2>✨ Hasil Analisis</h2>
+            
+            <div id="resultPlaceholder">
+                <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">🔍</div>
+                <p>Unggah gambar untuk melihat hasil deteksi<br>dan estimasi berat sisa makanan.</p>
+            </div>
+
+            <div id="resultContent">
+                <div class="result-image-box">
+                    <img id="resultImage" alt="Annotated Result">
+                </div>
+
+                <div class="summary-card">
+                    <div>
+                        <div class="summary-title">Total Estimasi Sisa Makanan</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">Berdasarkan volume & densitas</div>
+                    </div>
+                    <div class="summary-value" id="totalWeight">0.0g</div>
+                </div>
+
+                <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: #94a3b8; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Item Terdeteksi</h3>
+                <ul class="item-list" id="itemList">
+                    <!-- Items will be injected here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8080/api';
+        
+        // DOM Elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const reuploadBtn = document.getElementById('reuploadBtn');
+        const btnText = document.getElementById('btnText');
+        const btnLoader = document.getElementById('btnLoader');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        const resultPlaceholder = document.getElementById('resultPlaceholder');
+        const resultContent = document.getElementById('resultContent');
+        const resultImage = document.getElementById('resultImage');
+        const totalWeightEl = document.getElementById('totalWeight');
+        const itemListEl = document.getElementById('itemList');
+        
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+
+        let selectedFile = null;
+
+        // Check Server Health
+        async function checkServer() {
+            try {
+                const res = await fetch(`${API_URL}/health`);
+                if(res.ok) {
+                    statusDot.className = 'status-dot online';
+                    statusText.textContent = 'Server Online';
+                } else {
+                    throw new Error('Not OK');
+                }
+            } catch(e) {
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = 'Server Offline';
+            }
+        }
+        checkServer();
+        setInterval(checkServer, 5000);
+
+        // Drag & Drop Handlers
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if(e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            if(e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if(!file.type.startsWith('image/')) {
+                showError("Silakan unggah file gambar.");
+                return;
+            }
+            selectedFile = file;
+            errorMessage.style.display = 'none';
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                uploadPlaceholder.style.display = 'none';
+                imagePreviewContainer.style.display = 'block';
+                analyzeBtn.disabled = false;
+                reuploadBtn.style.display = 'flex';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Re-upload: reset state for a new file
+        reuploadBtn.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            imagePreview.src = '';
+            imagePreviewContainer.style.display = 'none';
+            uploadPlaceholder.style.display = 'block';
+            analyzeBtn.disabled = true;
+            reuploadBtn.style.display = 'none';
+            errorMessage.style.display = 'none';
+        });
+
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorMessage.style.display = 'block';
+        }
+
+        // Palette for classes (mimicking YOLO colors)
+        const colors = ['#FF3838', '#FF9D97', '#FF701F', '#FFB21D', '#CFD231', '#48F90A', '#92CC17', '#3DDB86', '#1A9334', '#00D4BB', '#2C99A8', '#00C2FF', '#344593', '#6473FF', '#0018EC', '#8438FF'];
+
+        // Analyze Action
+        analyzeBtn.addEventListener('click', async () => {
+            if(!selectedFile) return;
+
+            // UI State loading
+            analyzeBtn.disabled = true;
+            btnText.textContent = 'Menganalisis...';
+            btnLoader.style.display = 'block';
+            errorMessage.style.display = 'none';
+            resultPlaceholder.style.display = 'flex';
+            resultContent.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('include_annotated', 'true');
+
+            try {
+                const response = await fetch(`${API_URL}/analyze`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const json = await response.json();
+
+                if(!response.ok) {
+                    throw new Error(json.message || "Gagal menganalisis gambar");
+                }
+
+                displayResults(json);
+
+            } catch (error) {
+                showError(error.message || "Tidak dapat terhubung ke server. Pastikan app.py sudah berjalan.");
+            } finally {
+                // UI State restore
+                analyzeBtn.disabled = false;
+                btnText.textContent = 'Analisis Gambar';
+                btnLoader.style.display = 'none';
+            }
+        });
+
+        function displayResults(data) {
+            resultPlaceholder.style.display = 'none';
+            resultContent.style.display = 'block';
+
+            // Show annotated image
+            if(data.annotated_image_base64) {
+                resultImage.src = `data:image/jpeg;base64,${data.annotated_image_base64}`;
+            } else {
+                resultImage.src = imagePreview.src; // fallback
+            }
+
+            // Total weight
+            totalWeightEl.textContent = `${data.summary.total_waste_weight_grams.toFixed(1)}g`;
+
+            // List items
+            itemListEl.innerHTML = '';
+            
+            if(data.detections && data.detections.length > 0) {
+                // Group by food_category (matches annotated image labels)
+                const grouped = {};
+                data.detections.forEach(est => {
+                    const category = est.food_category || est.class_name;
+                    if(!grouped[category]) grouped[category] = { weight: 0, count: 0, id: est.class_id, label: est.food_label || category };
+                    grouped[category].weight += (est.estimated_weight_grams || 0);
+                    grouped[category].count += 1;
+                });
+
+                Object.keys(grouped).forEach(category => {
+                    const info = grouped[category];
+                    const color = colors[info.id % colors.length];
+                    
+                    const li = document.createElement('li');
+                    li.className = 'item-row';
+                    li.innerHTML = `
+                        <div class="item-name">
+                            <span class="color-dot" style="background-color: ${color}"></span>
+                            <strong>${category}</strong> <span style="color:#64748b; font-size:0.8rem;">x${info.count}</span>
+                        </div>
+                        <div class="item-weight">${info.weight.toFixed(1)}g</div>
+                    `;
+                    itemListEl.appendChild(li);
+                });
+            } else {
+                itemListEl.innerHTML = '<li class="item-row" style="color: #64748b;">Tidak ada makanan terdeteksi.</li>';
+            }
+        }
+    </script>
+</body>
+</html>

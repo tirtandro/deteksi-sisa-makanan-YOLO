@@ -145,16 +145,14 @@ def create_annotated_image(
     annotated = image.copy()
     h, w = annotated.shape[:2]
 
-    # Warna untuk setiap kategori makanan
+    # Warna untuk setiap kategori makanan (sesuai model custom)
     colors = {
-        "nasi": (0, 255, 255),       # Yellow
-        "mie": (0, 165, 255),        # Orange
-        "daging": (0, 0, 255),       # Red
-        "ikan": (255, 128, 0),       # Blue-ish
-        "sayuran": (0, 255, 0),      # Green
         "buah": (255, 0, 255),       # Magenta
-        "roti": (0, 200, 200),       # Dark Yellow
-        "kuah": (255, 255, 0),       # Cyan
+        "karbo": (0, 165, 255),      # Orange
+        "nasi": (0, 255, 255),       # Yellow
+        "protein": (255, 128, 0),    # Blue-ish
+        "sayur": (0, 255, 0),        # Green
+        "susu": (255, 255, 0),       # Cyan
         "lainnya": (128, 128, 128),  # Gray
     }
 

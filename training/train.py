@@ -1,7 +1,7 @@
 """
 S3C-Smart-Canteen: YOLO Training Script
 ========================================
-Script untuk fine-tuning model YOLOv8 Segmentation pada dataset
+Script untuk fine-tuning model YOLO11 Segmentation pada dataset
 sisa makanan kantin.
 
 Usage:
@@ -9,7 +9,7 @@ Usage:
     python training/train.py
 
     # Training dengan custom parameters
-    python training/train.py --model yolov8s-seg.pt --epochs 200 --batch 8 --imgsz 640
+    python training/train.py --model yolo11s-seg.pt --epochs 200 --batch 8 --imgsz 640
 
     # Resume training
     python training/train.py --resume
@@ -27,16 +27,16 @@ sys.path.insert(0, str(project_root))
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Train YOLOv8 Segmentation model for food waste detection"
+        description="Train YOLO11 Segmentation model for food waste detection"
     )
 
     parser.add_argument(
         "--model",
         type=str,
-        default="yolov8n-seg.pt",
-        help="Pre-trained model to fine-tune. Options: yolov8n-seg.pt, "
-             "yolov8s-seg.pt, yolov8m-seg.pt, yolov8l-seg.pt, yolov8x-seg.pt "
-             "(default: yolov8n-seg.pt — fastest, good for starting)",
+        default="yolo11n-seg.pt",
+        help="Pre-trained model to fine-tune. Options: yolo11n-seg.pt, "
+             "yolo11s-seg.pt, yolo11m-seg.pt, yolo11l-seg.pt, yolo11x-seg.pt "
+             "(default: yolo11n-seg.pt — fastest, good for starting)",
     )
 
     parser.add_argument(
@@ -122,7 +122,7 @@ def main():
     args = parse_args()
 
     print("=" * 60)
-    print("S3C-Smart-Canteen: YOLO Food Waste Segmentation Training")
+    print("S3C-Smart-Canteen: YOLO11 Food Waste Segmentation Training")
     print("=" * 60)
 
     # Import YOLO

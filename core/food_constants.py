@@ -17,28 +17,26 @@ Akurasi dapat ditingkatkan dengan kalibrasi menggunakan data pengukuran real.
 # Food Class Definitions
 # ──────────────────────────────────────────────
 # Mapping dari class ID model YOLO ke nama kategori
+# HARUS sesuai dengan model.names dari model custom yang di-train!
+# Model saat ini: {0: 'buah', 1: 'karbo', 2: 'nasi', 3: 'protein', 4: 'sayur', 5: 'susu'}
 FOOD_CLASSES = {
-    0: "nasi",
-    1: "mie",
-    2: "daging",
-    3: "ikan",
-    4: "sayuran",
-    5: "buah",
-    6: "roti",
-    7: "kuah",
-    8: "lainnya",
+    0: "buah",
+    1: "karbo",
+    2: "nasi",
+    3: "protein",
+    4: "sayur",
+    5: "susu",
 }
 
 # Mapping nama class ke label yang user-friendly (Bahasa Indonesia)
 FOOD_LABELS = {
-    "nasi": "Nasi / Rice",
-    "mie": "Mie / Noodles",
-    "daging": "Daging / Meat",
-    "ikan": "Ikan / Fish",
-    "sayuran": "Sayuran / Vegetables",
     "buah": "Buah / Fruit",
-    "roti": "Roti / Bread",
-    "kuah": "Kuah / Sauce / Soup",
+    "karbo": "Karbohidrat / Carbs",
+    "nasi": "Nasi / Rice",
+    "protein": "Protein",
+    "sayur": "Sayur / Vegetables",
+    "susu": "Susu / Milk",
+    # Legacy labels (for COCO fallback compatibility)
     "lainnya": "Lainnya / Others",
 }
 
@@ -48,14 +46,13 @@ FOOD_LABELS = {
 # Bulk density untuk makanan yang sudah dimasak.
 # Bulk density memperhitungkan udara antar potongan makanan.
 FOOD_DENSITY = {
+    "buah": 0.65,       # Buah potong (semangka, apel, jeruk, dll.)
+    "karbo": 0.55,      # Karbohidrat umum (mie, roti, kentang, dll.)
     "nasi": 0.75,       # Nasi putih matang, loosely packed
-    "mie": 0.59,        # Mie matang, tangled
-    "daging": 1.00,     # Daging matang (ayam, sapi, babi)
-    "ikan": 0.85,       # Ikan matang
-    "sayuran": 0.45,    # Sayuran matang, mixed/chopped
-    "buah": 0.65,       # Buah potong
-    "roti": 0.30,       # Roti, kue, pastry
-    "kuah": 1.00,       # Cairan (kuah, saus, sup)
+    "protein": 1.00,    # Protein (daging ayam, ikan, telur, tempe, dll.)
+    "sayur": 0.45,      # Sayuran matang, mixed/chopped
+    "susu": 1.03,       # Susu / minuman (liquid density ~1.03 g/cm³)
+    # Legacy (for COCO fallback)
     "lainnya": 0.70,    # Default untuk makanan tidak terklasifikasi
 }
 
@@ -66,14 +63,13 @@ FOOD_DENSITY = {
 # Digunakan untuk mengkonversi area 2D ke volume 3D.
 # Asumsi: makanan tersebar merata di area mask.
 FOOD_HEIGHT = {
-    "nasi": 1.5,        # Nasi biasanya bertumpuk ~1.5 cm
-    "mie": 2.0,         # Mie cenderung lebih tebal karena tangled
-    "daging": 1.5,      # Potongan daging rata-rata tebal 1.5 cm
-    "ikan": 1.2,        # Ikan biasanya lebih pipih
-    "sayuran": 2.0,     # Sayuran bervariasi, cenderung voluminous
     "buah": 1.5,        # Buah potong
-    "roti": 2.5,        # Roti/kue cenderung lebih tebal
-    "kuah": 0.5,        # Kuah/saus tipis di permukaan
+    "karbo": 2.0,       # Karbohidrat (mie, roti) cenderung tebal
+    "nasi": 1.5,        # Nasi biasanya bertumpuk ~1.5 cm
+    "protein": 1.5,     # Potongan daging/lauk rata-rata tebal 1.5 cm
+    "sayur": 2.0,       # Sayuran bervariasi, cenderung voluminous
+    "susu": 5.0,        # Susu kotak / cup (tinggi kemasan)
+    # Legacy (for COCO fallback)
     "lainnya": 1.5,     # Default
 }
 

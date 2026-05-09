@@ -29,7 +29,7 @@ MODEL_PATH = os.environ.get(
     os.path.join(BASE_DIR, "models", "food_seg_model.pt"),
 )
 # Fallback to pre-trained YOLOv8 segmentation model if custom model not found
-FALLBACK_MODEL = "yolov8n-seg.pt"
+FALLBACK_MODEL = "yolo11n-seg.pt"
 
 # Inference settings
 CONFIDENCE_THRESHOLD = float(os.environ.get("YOLO_CONF_THRESHOLD", 0.35))

@@ -1,4 +1,4 @@
-# 🍽️ Panduan Training Model YOLO untuk Deteksi Sisa Makanan
+# 🍽️ Panduan Training Model YOLO11 untuk Deteksi Sisa Makanan
 ## S3C-Smart-Canteen Food Waste Analysis
 
 ---
@@ -120,19 +120,19 @@ pip install -r requirements.txt
 **Opsi 1: Menggunakan script (rekomendasi)**
 ```bash
 # Training dasar (fastest, untuk prototyping)
-python training/train.py --model yolov8n-seg.pt --epochs 100
+python training/train.py --model yolo11n-seg.pt --epochs 100
 
 # Training lebih akurat (medium model)
-python training/train.py --model yolov8s-seg.pt --epochs 150 --batch 8
+python training/train.py --model yolo11s-seg.pt --epochs 150 --batch 8
 
 # Training terbaik (butuh GPU kuat)
-python training/train.py --model yolov8m-seg.pt --epochs 200 --batch 4 --imgsz 640
+python training/train.py --model yolo11m-seg.pt --epochs 200 --batch 4 --imgsz 640
 ```
 
 **Opsi 2: Langsung via CLI ultralytics**
 ```bash
 yolo task=segment mode=train \
-    model=yolov8n-seg.pt \
+    model=yolo11n-seg.pt \
     data=training/data.yaml \
     epochs=100 \
     imgsz=640 \
@@ -143,7 +143,7 @@ yolo task=segment mode=train \
 ```python
 from ultralytics import YOLO
 
-model = YOLO('yolov8n-seg.pt')
+model = YOLO('yolo11n-seg.pt')
 results = model.train(
     data='training/data.yaml',
     epochs=100,
@@ -156,10 +156,10 @@ results = model.train(
 
 | Model | Size | Speed | Accuracy | GPU RAM | Rekomendasi |
 |:------|:-----|:------|:---------|:--------|:------------|
-| `yolov8n-seg.pt` | 6 MB | ⚡⚡⚡ | ★★☆ | ~4 GB | Prototyping, edge device |
-| `yolov8s-seg.pt` | 23 MB | ⚡⚡ | ★★★ | ~6 GB | **Best balance** |
-| `yolov8m-seg.pt` | 50 MB | ⚡ | ★★★★ | ~8 GB | Produksi (GPU available) |
-| `yolov8l-seg.pt` | 83 MB | 🐌 | ★★★★★ | ~12 GB | Highest accuracy |
+| `yolo11n-seg.pt` | ~6 MB | ⚡⚡⚡ | ★★☆ | ~4 GB | Prototyping, edge device |
+| `yolo11s-seg.pt` | ~23 MB | ⚡⚡ | ★★★ | ~6 GB | **Best balance** |
+| `yolo11m-seg.pt` | ~50 MB | ⚡ | ★★★★ | ~8 GB | Produksi (GPU available) |
+| `yolo11l-seg.pt` | ~83 MB | 🐌 | ★★★★★ | ~12 GB | Highest accuracy |
 
 ---
 
