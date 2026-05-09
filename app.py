@@ -154,11 +154,37 @@ def analyze_food_waste():
             f"scale={plate_info['scale_factor']:.5f} cm/px"
         )
 
+        import math
+        
         # ── Step 2: YOLO Inference ──
-        detection_result = detector.detect(image)
-        detections = detection_result["detections"]
+        raw_detection_result = detector.detect(image)
+        raw_detections = raw_detection_result["detections"]
+        
+        # Filter detections: abaikan deteksi yang berada jauh di luar piring (background noise)
+        detections = []
+        if plate_info["detected"]:
+            plate_cx, plate_cy = plate_info["plate_center"]
+            plate_r = plate_info["plate_radius_px"]
+            for det in raw_detections:
+                x1, y1, x2, y2 = det["bbox"]
+                det_cx, det_cy = (x1 + x2) / 2, (y1 + y2) / 2
+                dist = math.hypot(det_cx - plate_cx, det_cy - plate_cy)
+                
+                # Toleransi radius + 20% agar sisa makanan di pinggir piring tetap masuk
+                if dist <= (plate_r * 1.20):
+                    detections.append(det)
+                else:
+                    logger.info(f"Filtered out false positive {det['class_name']} at distance {dist:.1f}px (plate radius {plate_r:.1f}px)")
+        else:
+            # Jika piring tidak terdeteksi, kita tidak bisa memfilter berdasarkan posisi
+            detections = raw_detections
+            
+        detection_result = raw_detection_result
+        detection_result["num_detections"] = len(detections)
+        detection_result["detections"] = detections
+
         logger.info(
-            f"YOLO inference: {detection_result['num_detections']} objects detected "
+            f"YOLO inference: {len(detections)} valid objects detected "
             f"in {detection_result['processing_time_ms']:.1f}ms"
         )
 

@@ -32,7 +32,7 @@ MODEL_PATH = os.environ.get(
 FALLBACK_MODEL = "yolo11n-seg.pt"
 
 # Inference settings
-CONFIDENCE_THRESHOLD = float(os.environ.get("YOLO_CONF_THRESHOLD", 0.35))
+CONFIDENCE_THRESHOLD = float(os.environ.get("YOLO_CONF_THRESHOLD", 0.45))
 IOU_THRESHOLD = float(os.environ.get("YOLO_IOU_THRESHOLD", 0.45))
 INPUT_IMAGE_SIZE = int(os.environ.get("YOLO_IMG_SIZE", 640))
 
