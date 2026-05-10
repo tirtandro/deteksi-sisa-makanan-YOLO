@@ -188,22 +188,7 @@ def analyze_food_waste():
             f"in {detection_result['processing_time_ms']:.1f}ms"
         )
 
-        if not detections:
-            total_time = (time.time() - total_start) * 1000
-            data = build_analysis_response(
-                image_id=image_id,
-                plate_info=plate_info,
-                estimations=[],
-                total_weight=0.0,
-                weight_by_category={},
-                processing_time_ms=total_time,
-                model_type=detection_result["model_type"],
-            )
-            return success_response(
-                data=data,
-                message="No food waste detected in the image.",
-            )
-
+        # (No early return needed, empty detections will result in empty estimations and 0.0g weight)
         # ── Step 3: Weight Estimation ──
         estimations = estimator.estimate(
             detections=detections,
